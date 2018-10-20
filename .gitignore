@@ -1,4 +1,28 @@
 /node_modules
+.vscode
+
 /backend/node_modules
 /backend/package-lock.json
-.vscode
+
+/frontend/node_modules
+/frontend/package-lock.json
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
+/frontend/node_modules
+/frontend/coverage
+
+# production
+/frontend/build
+
+# misc
+/frontend/.DS_Store
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+
