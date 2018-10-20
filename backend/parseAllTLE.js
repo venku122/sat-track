@@ -5,29 +5,28 @@ const tleData = fs.readFileSync(`${__dirname}/data/tle_data.json`);
 
 const tleArr = JSON.parse(tleData);
 
-const randomSatelliteIndex = Math.round(Math.random() * 17000);
-const satellite = tleArr[randomSatelliteIndex];
+// console.dir(tleArr);
 
 const appendToFile = (fileName, content) => {
   fs.appendFileSync(fileName, content);
 }
 
-appendToFile('satelliteIterativePlot.csv', `Object Name,TimeStamp,Latitude,Longitude`);
+appendToFile('satellitePositionData.csv', `Object Name,Latitude,Longitude`);
 
-const satRecord = satelliteParser.twoline2satrec(satellite.TLE_LINE1, satellite.TLE_LINE2);
+tleArr.map((satellite) => {
+  const satRecord = satelliteParser.twoline2satrec(satellite.TLE_LINE1, satellite.TLE_LINE2);
+  
+  if (satRecord) {
+    // get positionAndVelocity calc for iteration
+    const positionAndVelocity = satelliteParser.propagate(satRecord, new Date());
 
-if (satRecord) {
-  const startOfPropagation = Date.now();
-  for (let i = startOfPropagation; i < startOfPropagation + 1000*60*60*24*3; i += 1000 * 60 * 5) {
-    const futureTime = new Date(startOfPropagation + i);
-    const positionAndVelocity = satelliteParser.propagate(satRecord, futureTime);
     // get position and velocity components
     const positionEci = positionAndVelocity.position;
     const velocityEci = positionAndVelocity.velocity;
 
     if (positionEci) {
       // get position object
-      const gmst = satelliteParser.gstime(futureTime);
+      const gmst = satelliteParser.gstime(new Date());
       const positionGd = satelliteParser.eciToGeodetic(positionEci, gmst);
 
       // get position in radians
@@ -39,8 +38,12 @@ if (satRecord) {
       const longitudeStr = satelliteParser.degreesLong(longitude);
       const latitudeStr  = satelliteParser.degreesLat(latitude);
 
-      console.log(`time in the future: ${futureTime}, lat: ${latitudeStr}, long: ${longitudeStr}`)
-      appendToFile('satelliteIterativePlot.csv', `${satellite.OBJECT_NAME},${futureTime},${latitudeStr},${longitudeStr}\n`);
+      console.log(`satellite name: ${satellite.OBJECT_NAME}, lat: ${latitudeStr}, long: ${longitudeStr}`)
+      appendToFile('satellitePositionData.csv', `${satellite.OBJECT_NAME},${latitudeStr},${longitudeStr}\n`);
     }
   }
-}
+});
+
+// const satRecord = satelliteParser.twoline2satrec(tleLine1, tleLine2);
+
+// const satRecord = satelliteParser.twoline2satrec()
