@@ -18,7 +18,7 @@ const satRecord = satelliteParser.twoline2satrec(satellite.TLE_LINE1, satellite.
 const predictions = [];
 if (satRecord) {
   const startOfPropagation = Date.now();
-  for (let i = startOfPropagation; i < startOfPropagation + 1000*60*60*24*3; i += 1000 * 60 * 5) {
+  for (let i = startOfPropagation; i < startOfPropagation + 1000*60*60*24; i += 1000 * 60 * 1) {
     const futureTime = new Date(startOfPropagation + i);
     const positionAndVelocity = satelliteParser.propagate(satRecord, futureTime);
     // get position and velocity components
@@ -46,4 +46,4 @@ if (satRecord) {
   }
 }
 
-appendToFile('satelliteIterativeData.json', JSON.stringify(predictions));
+appendToFile('satelliteIterativeData2.json', JSON.stringify(predictions));
