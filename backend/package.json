@@ -1,0 +1,14 @@
+{
+  "name": "sat-track-server",
+  "version": "0.0.1",
+  "description": "Express server for parsing and generating satellite simulation data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "T.J. Tarazevits",
+  "license": "ISC",
+  "dependencies": {
+    "satellite.js": "^2.0.3"
+  }
+}
