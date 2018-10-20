@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -9,6 +10,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import withRoot from '../withRoot';
+import { downloadSatelliteData } from '../actions/actions';
 
 const styles = theme => ({
   root: {
@@ -22,6 +24,10 @@ class SatelliteMap extends React.Component {
     open: false,
   };
 
+  componentDidMount() {
+
+  }
+
   handleClose = () => {
     this.setState({
       open: false,
@@ -29,9 +35,8 @@ class SatelliteMap extends React.Component {
   };
 
   handleClick = () => {
-    this.setState({
-      open: true,
-    });
+    const { fetchSatelliteData } = this.props;
+    fetchSatelliteData();
   };
 
   render() {
@@ -58,7 +63,7 @@ class SatelliteMap extends React.Component {
           example project
         </Typography>
         <Button variant="contained" color="secondary" onClick={this.handleClick}>
-          Super Secret Password
+          Fetch Satellite Data
         </Button>
       </div>
     );
@@ -67,6 +72,15 @@ class SatelliteMap extends React.Component {
 
 SatelliteMap.propTypes = {
   classes: PropTypes.object.isRequired,
+  fetchSatelliteData: PropTypes.func.isRequired,
 };
 
-export default withRoot(withStyles(styles)(SatelliteMap));
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    fetchSatelliteData: () => {
+      dispatch(downloadSatelliteData())
+    },
+  };
+};
+
+export default withRoot(withStyles(styles)(connect(null, mapDispatchToProps)(SatelliteMap)));

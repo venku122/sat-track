@@ -9,20 +9,11 @@ export const downloadSatelliteData = () => {
     dispatch({
       type: ActionTypes.DOWNLOAD_SATELLITE_DATA_ATTEMPTED
     });
-
     axios.get(`${urlBase}/downloadSatellitePrediction`)
     .then((res) => {
-      let parsedJSON;
-      try {
-        parsedJSON = JSON.parse(res);
-      } catch (e) {
-        return dispatch({
-          type: ActionTypes.DOWNLOAD_SATELLITE_DATA_FAILED
-        });
-      }
       dispatch({
         type: ActionTypes.DOWNLOAD_SATELLITE_DATA_SUCCESSFUL,
-        satelliteData: parsedJSON,
+        satelliteData: res.data,
       });
     })
     .catch((err) => {
