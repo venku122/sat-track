@@ -4,11 +4,13 @@
   "description": "Express server for parsing and generating satellite simulation data",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./index.js"
   },
   "author": "T.J. Tarazevits",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.16.4",
     "satellite.js": "^2.0.3"
   }
 }

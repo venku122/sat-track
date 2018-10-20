@@ -1,0 +1,15 @@
+.header-links {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.header-title {
+  width: 200px;
+}
+
+.header-link-item {
+  margin-left: 30px;
+  color: white;
+  text-decoration: none; 
+}
