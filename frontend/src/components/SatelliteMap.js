@@ -55,9 +55,25 @@ class SatelliteMap extends Component {
     return this.normalize(width, long);
   }
 
+  willCrossEdge(xPos, yPos, priorXPos, priorYPos) {
+    const { canvas } = this.state;
+    const { width, height } = canvas;
+    /*
+    const xLeap = Math.abs(xPos- priorXPos);
+    const yLeap = Math.abs(yPos - priorYPos);
+    if ((priorXPos + xLeap) > width) return true;
+    if ((priorYPos + yLeap) > height) return true;
+    return false;
+    */
+   if (xPos > width) return true;
+   if (yPos > height) return true;
+
+  }
+
   renderPredictions() {
     const { predictions } = this.props;
-    const { ctx } = this.state;
+    const { ctx, canvas } = this.state;
+    const { width, height } = canvas;
     ctx.fillStyle = 'red';
     /*
     predictions.map((prediction) => {
@@ -68,11 +84,31 @@ class SatelliteMap extends Component {
     */
 
    ctx.beginPath();
-   predictions.map((prediction) => {
-    const xPos = this.normalizeLong(prediction.get('long'));
-    const yPos = this.normalizeLat(prediction.get('lat'));
-    ctx.lineTo(xPos,yPos,2,2);
-  });
+   let xPos, yPos, priorXPos, priorYPos;
+   for (let i = 0; i < predictions.size; i++) {
+     const prediction = predictions.get(i);
+      xPos = this.normalizeLong(prediction.get('long'));
+      yPos = this.normalizeLat(prediction.get('lat'));
+      if (xPos > width) {
+        ctx.lineTo(width, yPos);
+        ctx.moveTo(xPos, yPos);
+      } else {
+        ctx.lineTo(xPos, yPos, 2, 2);
+      }
+      /*
+      if (this.willCrossEdge(xPos, yPos, priorXPos, priorYPos)) {
+        ctx.moveTo(xPos, yPos);
+      } else {
+        ctx.lineTo(xPos,yPos,2,2);
+      }
+      */
+      priorYPos = yPos;
+      priorXPos = xPos;
+    }
+    /*
+    predictions.map((prediction, index) => {
+
+    });*/
   ctx.stroke();
   }
 

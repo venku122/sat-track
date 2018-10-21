@@ -12,7 +12,7 @@ app.use(function(req, res, next) {
 
 app.get('/downloadSatellitePrediction', (req, res) => {
   res.contentType('json');
-  const satelliteData = fs.readFileSync(`${__dirname}/data/satelliteIterativeData2.json`);
+  const satelliteData = fs.readFileSync(`${__dirname}/data/satelliteIterativeData.json`);
   res.send(satelliteData);
 });
 
