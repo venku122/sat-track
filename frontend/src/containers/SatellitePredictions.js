@@ -4,8 +4,12 @@ import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import SatelliteMap from '../components/SatelliteMap';
+import SatelliteList from '../components/SatelliteList';
 import withRoot from '../withRoot';
-import { downloadSatelliteData } from '../actions/actions';
+import {
+  downloadSatelliteData,
+  getSatelliteIDs
+} from '../actions/actions';
 
 const styles = theme => ({
   root: {
@@ -20,16 +24,18 @@ class SatellitePredictions extends React.Component {
   }
 
   handleClick = () => {
-    const { fetchSatelliteData } = this.props;
-    fetchSatelliteData();
+    const { fetchSatelliteData, fetchSatellites } = this.props;
+    //fetchSatelliteData();
+    fetchSatellites();
   };
 
   render() {
-    const { classes, satelliteData } = this.props;
+    const { classes, simData, satellites } = this.props;
 
     return (
       <div className={classes.root}>
-        <SatelliteMap predictions={satelliteData}/>
+        <SatelliteMap predictions={simData}/>
+        <SatelliteList satellites={satellites} />
         <Button variant="contained" color="secondary" onClick={this.handleClick}>
           Fetch Satellite Data
         </Button>
@@ -41,12 +47,16 @@ class SatellitePredictions extends React.Component {
 SatellitePredictions.propTypes = {
   classes: PropTypes.object.isRequired,
   fetchSatelliteData: PropTypes.func.isRequired,
-  satelliteData: PropTypes.object,
+  simData: PropTypes.object,
+  currentSimID: PropTypes.string,
+  satellites: PropTypes.object,
 };
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    satelliteData: state.appState.get('satelliteData'),
+    simData: state.appState.get('simData'),
+    currentSimID: state.appState.get('currentSimSatellite'),
+    satellites: state.appState.get('satellites'),
   };
 };
 
@@ -54,6 +64,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     fetchSatelliteData: () => {
       dispatch(downloadSatelliteData())
+    },
+    fetchSatellites: () => {
+      dispatch(getSatelliteIDs());
     },
   };
 };

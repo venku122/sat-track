@@ -25,7 +25,7 @@ export default function reducer(state = DEFAULT_STATE, action) {
       });
     case ActionTypes.GET_SATELLITE_INFO_SUCCESSFUL:
       return state.merge({
-        satelliteData: satelliteData.mergeIn(satelliteID, satelliteInfo),
+        satelliteData: state.satelliteData.mergeIn(satelliteID, satelliteInfo),
       });
     case ActionTypes.GET_PROPOGATION_SUCCESSFUL:
     case ActionTypes.GET_PERIOD_PROPOGATION_SUCCESSFUL:

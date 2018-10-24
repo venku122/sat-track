@@ -92,7 +92,7 @@ app.get('/satelliteIDs', async (req, res) => {
       type: tle.OBJECT_TYPE,
     };
   });
-  res.send(satelliteMap);
+  return res.send(satelliteMap);
 });
 
 app.listen(port, () => console.log(`Sat-Track Server is listening on port ${port}`));
