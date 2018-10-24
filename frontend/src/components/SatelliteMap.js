@@ -1,17 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
-/*
-const normalize = (number) => {
-  const width = 500;
-  if (number > 0) {
-    return (number * 2.5) + 250;
-  }
-  if (number <= 0) {
-    return 250 + (number * 2.5);
-  }
-}
-*/
+import mapImg from './Equirectangular_projection_SW.jpg';
 
 class SatelliteMap extends Component {
 
@@ -27,9 +16,12 @@ class SatelliteMap extends Component {
   componentDidMount() {
     const canvas = this.refs.canvas;
     const ctx = canvas.getContext("2d");
+    const mapBackground = new Image();   // Create new img element
+    mapBackground.src = mapImg;
     this.setState({
       canvas,
-      ctx
+      ctx,
+      mapBackground
     });
     // this.renderPredictions();
   }
@@ -65,14 +57,14 @@ class SatelliteMap extends Component {
     if ((priorYPos + yLeap) > height) return true;
     return false;
     */
-   if (xPos > width) return true;
-   if (yPos > height) return true;
+   if (xPos > width || xPos < 0) return true;
+   if (yPos > height || yPos < 0) return true;
 
   }
 
   renderPredictions() {
     const { predictions } = this.props;
-    const { ctx, canvas } = this.state;
+    const { ctx, canvas, mapBackground } = this.state;
     const { width, height } = canvas;
     ctx.fillStyle = 'red';
     /*
@@ -82,19 +74,21 @@ class SatelliteMap extends Component {
       ctx.fillRect(xPos,yPos,2,2);
     });
     */
-
+  ctx.drawImage(mapBackground, 0, 0, width, height);
    ctx.beginPath();
    let xPos, yPos, priorXPos, priorYPos;
    for (let i = 0; i < predictions.size; i++) {
      const prediction = predictions.get(i);
       xPos = this.normalizeLong(prediction.get('long'));
       yPos = this.normalizeLat(prediction.get('lat'));
+      /*
       if (xPos > width) {
         ctx.lineTo(width, yPos);
         ctx.moveTo(xPos, yPos);
       } else {
         ctx.lineTo(xPos, yPos, 2, 2);
       }
+      */
       /*
       if (this.willCrossEdge(xPos, yPos, priorXPos, priorYPos)) {
         ctx.moveTo(xPos, yPos);
@@ -102,13 +96,10 @@ class SatelliteMap extends Component {
         ctx.lineTo(xPos,yPos,2,2);
       }
       */
+     ctx.lineTo(xPos, yPos, 2, 2);
       priorYPos = yPos;
       priorXPos = xPos;
     }
-    /*
-    predictions.map((prediction, index) => {
-
-    });*/
   ctx.stroke();
   }
 
