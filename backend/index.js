@@ -39,6 +39,7 @@ app.get('/propogate', async (req, res) => {
 /*
 params:
 - satelliteID: catalog string
+- periods: number of orbits to simulate
 */
 app.get('/propogatePeriod', async (req, res) => {
   const { satelliteID, periods } = req.query;
@@ -83,14 +84,15 @@ app.get('/satelliteInfo', async (req, res) => {
 
 app.get('/satelliteIDs', async (req, res) => {
   const tleList = await getTLEList();
-  const satelliteIDs = tleList.map( tle => {
-    return {
+  const satelliteMap = {};
+  tleList.reduce((accum, tle) => {
+    satelliteMap[tle.NORAD_CAT_ID] = {
       id: tle.NORAD_CAT_ID,
       name: tle.OBJECT_NAME,
       type: tle.OBJECT_TYPE,
-    }
+    };
   });
-  res.send(satelliteIDs);
+  res.send(satelliteMap);
 });
 
 app.listen(port, () => console.log(`Sat-Track Server is listening on port ${port}`));
