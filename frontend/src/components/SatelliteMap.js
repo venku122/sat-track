@@ -27,7 +27,8 @@ class SatelliteMap extends Component {
   }
 
   componentDidUpdate(nextProps, nextState) {
-    this.renderPredictions();
+    //this.renderPredictions();
+    this.renderPredictionsLongCurve();
   }
 
   normalize(dimension, value) {
@@ -74,7 +75,7 @@ class SatelliteMap extends Component {
       ctx.fillRect(xPos,yPos,2,2);
     });
     */
-  ctx.drawImage(mapBackground, 0, 0, width, height);
+   ctx.drawImage(mapBackground, 0, 0, width, height);
    ctx.beginPath();
    let xPos, yPos, priorXPos, priorYPos;
    for (let i = 0; i < predictions.size; i++) {
@@ -101,6 +102,49 @@ class SatelliteMap extends Component {
       priorXPos = xPos;
     }
   ctx.stroke();
+  }
+
+  renderPredictionsLongCurve() {
+    const { predictions } = this.props;
+    const { ctx, canvas, mapBackground } = this.state;
+    const { width, height } = canvas;
+    /*
+      const prediction = predictions.get(i);
+      xPos = this.normalizeLong(prediction.get('long'));
+      yPos = this.normalizeLat(prediction.get('lat'));
+    */
+    // move to the first point
+    if (predictions.size > 0) {
+      ctx.drawImage(mapBackground, 0, 0, width, height);
+      ctx.beginPath();
+      const startingPrediction = predictions.get(0);
+      let xPos = this.normalizeLong(startingPrediction.get('long'));
+      let yPos = this.normalizeLat(startingPrediction.get('lat'));
+      ctx.moveTo(xPos, yPos);
+      let i = 0;
+      for (i = 1; i < predictions.size - 2; i ++)
+      {
+        const prediction1 = predictions.get(i);
+        const prediction2 = predictions.get(i + 1);
+        const x1 = this.normalizeLong(prediction1.get('long'));
+        const x2 = this.normalizeLong(prediction2.get('long'));
+        const y1 = this.normalizeLat(prediction1.get('lat'));
+        const y2 = this.normalizeLat(prediction2.get('lat'));
+        const xc = (x1 + x2) / 2;
+        const yc = (y1 + y2) / 2;
+        ctx.quadraticCurveTo(x1, y1, xc, yc);
+      }
+  
+      const finalPrediction1 = predictions.get(i);
+      const finalPrediction2 = predictions.get(i + 1);
+  
+      // curve through the last two points
+      ctx.quadraticCurveTo(this.normalizeLong(finalPrediction1.get('long')),
+      this.normalizeLat(finalPrediction1.get('lat')),
+      this.normalizeLong(finalPrediction2.get('long')),
+      this.normalizeLat(finalPrediction2.get('lat')));
+      ctx.stroke();
+    }
   }
 
   render() {
