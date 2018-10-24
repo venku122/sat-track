@@ -55,8 +55,20 @@ params
 - satelliteID: catalog string
 */
 app.get('/satelliteInfo', async (req, res) => {
+  const { satelliteID } = req.query;
+  if (!satelliteID) {
+    return res.status(400).send({ error: 'Missing required query params' });
+  }
+
   const tleList = await getTLEList();
-  const satellite = tleList.find(tle => tle.NORAD_CAT_ID);
+  const satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
+  if (!satellite) {
+    return res.status(400).send({
+      error: "No satellite with that ID was found in the catalog",
+      satelliteID,
+    });
+  }
+
   const satelliteInfo = {
       satelliteID: Number.parseInt(satellite.NORAD_CAT_ID, 10),
       name: satellite.OBJECT_NAME,
@@ -71,7 +83,13 @@ app.get('/satelliteInfo', async (req, res) => {
 
 app.get('/satelliteIDs', async (req, res) => {
   const tleList = await getTLEList();
-  const satelliteIDs = tleList.map( tle => tle.NORAD_CAT_ID);
+  const satelliteIDs = tleList.map( tle => {
+    return {
+      id: tle.NORAD_CAT_ID,
+      name: tle.OBJECT_NAME,
+      type: tle.OBJECT_TYPE,
+    }
+  });
   res.send(satelliteIDs);
 });
 
