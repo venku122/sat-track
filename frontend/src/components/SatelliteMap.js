@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import mapImg from './Equirectangular_projection_SW.jpg';
+import '../styles/satelliteMap.css';
 
 class SatelliteMap extends Component {
 
@@ -11,6 +12,8 @@ class SatelliteMap extends Component {
       canvas: null,
       ctx: null,
     };
+
+    this.handleResize = this.handleResize.bind(this);
   }
 
   componentDidMount() {
@@ -23,11 +26,18 @@ class SatelliteMap extends Component {
       ctx,
       mapBackground
     });
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize);
     // this.renderPredictions();
+  }
+  
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize)
   }
 
   componentDidUpdate(nextProps, nextState) {
     //this.renderPredictions();
+    console.log('redrawing map');
     this.renderPredictionsLongCurve();
   }
 
@@ -66,7 +76,9 @@ class SatelliteMap extends Component {
   renderPredictions() {
     const { predictions } = this.props;
     const { ctx, canvas, mapBackground } = this.state;
+    if (!canvas) return;
     const { width, height } = canvas;
+    ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = 'red';
     /*
     predictions.map((prediction) => {
@@ -107,7 +119,9 @@ class SatelliteMap extends Component {
   renderPredictionsLongCurve() {
     const { predictions } = this.props;
     const { ctx, canvas, mapBackground } = this.state;
+    if (!canvas) return;
     const { width, height } = canvas;
+    ctx.clearRect(0, 0, width, height);
     /*
       const prediction = predictions.get(i);
       xPos = this.normalizeLong(prediction.get('long'));
@@ -147,13 +161,36 @@ class SatelliteMap extends Component {
     }
   }
 
+  handleResize() {
+    const canvas = this.refs.canvas;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    this.renderPredictionsLongCurve();
+  }
+
   render() {
+    // const { width, height } = this.props;
     return (
-      <div id="satellite-map">
-        <canvas ref="canvas" width={1280} height={720} />
+      <div className="satellite-map-container">
+        <canvas
+          ref="canvas"
+          className="satellite-map-canvas"
+          onResize={this.handleResize}
+        />
       </div>
     );
   }
 }
+
+/*
+window.addEventListener("resize", resizeCanvas, false);
+ 
+function resizeCanvas(e) {
+  var myCanvas = document.getElementById("myCanvas");
+  myCanvas.width = document.documentElement.clientWidth;
+  myCanvas.height = document.documentElement.clientHeight;
+}
+*/
 
 export default SatelliteMap;

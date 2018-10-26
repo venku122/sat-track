@@ -3,7 +3,7 @@ const { getTLEList } = require('./tle');
 
 const propogatePerPeriod = async (satelliteID, periodsToSim) => {
   const tleList = await getTLEList();  
-  const satellite = tleList.find(tle => tle.NORAD_CAT_ID);
+  const satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
   if (!satellite) {
     return ({
       error: "No satellite with that ID was found in the catalog",
@@ -24,7 +24,7 @@ const propogatePerPeriod = async (satelliteID, periodsToSim) => {
 
 const propogate = async (satelliteID, start, end, step) => {
   const tleList = await getTLEList();  
-  const satellite = tleList.find(tle => tle.NORAD_CAT_ID);
+  const satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
   if (!satellite) {
     return ({
       error: "No satellite with that ID was found in the catalog",

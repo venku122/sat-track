@@ -30,7 +30,7 @@ export const getSatelliteInfo = (satelliteID) => {
       type: ActionTypes.GET_SATELLITE_INFO_ATTEMPTED,
       satelliteID
     });
-    axios.get(`${urlBase}/satelliteID`, { query: { satelliteID }})
+    axios.get(`${urlBase}/satelliteID`, { params: { satelliteID }})
     .then((res) => {
       dispatch({
         type: ActionTypes.GET_SATELLITE_INFO_SUCCESSFUL,
@@ -51,7 +51,7 @@ export const getSatellitePropogation = (satelliteID, start, end, step) => {
     dispatch({
       type: ActionTypes.GET_PROPOGATION_ATTEMPTED,
     });
-    axios.get(`${urlBase}/propogate`, { query: { satelliteID, start, end, step }})
+    axios.get(`${urlBase}/propogate`, { params: { satelliteID, start, end, step }})
     .then((res) => {
       dispatch({
         type: ActionTypes.GET_PROPOGATION_SUCCESSFUL,
@@ -72,7 +72,7 @@ export const getSatellitePeriodPropogation = (satelliteID, periods) => {
     dispatch({
       type: ActionTypes.GET_PERIOD_PROPOGATION_ATTEMPTED,
     });
-    axios.get(`${urlBase}/propogatePeriod`, { query: { satelliteID, periods }})
+    axios.get(`${urlBase}/propogatePeriod`, { params: { satelliteID, periods }})
     .then((res) => {
       dispatch({
         type: ActionTypes.GET_PERIOD_PROPOGATION_SUCCESSFUL,

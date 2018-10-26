@@ -16,6 +16,10 @@ const styles = theme => ({
     textAlign: 'center',
     paddingTop: theme.spacing.unit * 20,
   },
+  content: {
+    display: 'flex',
+    width: '100%',
+  }
 });
 
 class SatellitePredictions extends React.Component {
@@ -34,8 +38,10 @@ class SatellitePredictions extends React.Component {
 
     return (
       <div className={classes.root}>
-        <SatelliteMap predictions={simData}/>
-        <SatelliteList satellites={satellites} />
+        <div className={classes.content}>
+          <SatelliteList satellites={satellites} />
+          <SatelliteMap predictions={simData} />
+        </div>
         <Button variant="contained" color="secondary" onClick={this.handleClick}>
           Fetch Satellite Data
         </Button>
