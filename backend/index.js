@@ -1,6 +1,6 @@
 const fs = require('fs');
 const express = require('express');
-const { propogate, propogatePerPeriod } = require('./propogation');
+const { propogate, propogatePerPeriod, propogatePerPeriodStream } = require('./propogation');
 const { getTLEList } = require('./tle');
 
 const app = express();
@@ -49,6 +49,22 @@ app.get('/propogatePeriod', async (req, res) => {
   const simPeriods = periods ? periods : 1; // if not given, simulate for one orbit period
   const propogationResults = await propogatePerPeriod(satelliteID, simPeriods)
   res.send(propogationResults);
+});
+
+/*
+params:
+- satelliteID: catalog string
+- periods: number of orbits to simulate
+*/
+app.get('/propogatePeriodStream', async (req, res) => {
+  const { satelliteID, periods } = req.query;
+  if (!satelliteID) {
+    res.status(400).send({ error: 'Missing required query params' });
+  }
+  const simPeriods = periods ? periods : 1; // if not given, simulate for one orbit period
+  const propogationResults = await propogatePerPeriodStream(satelliteID, simPeriods)
+  // res.send(propogationResults);
+  propogationResults.pipe(res);
 });
 
 /*
