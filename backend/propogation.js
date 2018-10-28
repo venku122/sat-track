@@ -67,7 +67,7 @@ const propogationSim = async (satRecord, startOfPropagation, endOfPropogation, s
 
       // console.log(`time in the future: ${futureTime}, lat: ${latitudeStr}, long: ${longitudeStr}`)
       // appendToFile('satelliteIterativePlot.csv', `${satellite.OBJECT_NAME},${futureTime},${latitudeStr},${longitudeStr}\n`);
-      predictions.push({timestamp: futureTime, lat: latitudeStr, long: longitudeStr});
+      predictions.push({timestamp: futureTime, lat: latitudeStr, long: longitudeStr, height});
     }
     numIterations++;
   }

@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import SatelliteMap from '../components/SatelliteMap';
 import SatelliteList from '../components/SatelliteList';
+import AltitudeChart from '../components/AltitudeChart';
 import withRoot from '../withRoot';
 import {
   downloadSatelliteData,
@@ -41,6 +42,7 @@ class SatellitePredictions extends React.Component {
         <div className={classes.content}>
           <SatelliteList satellites={satellites} />
           <SatelliteMap predictions={simData} />
+          <AltitudeChart predictions={simData}/>
         </div>
         <Button variant="contained" color="secondary" onClick={this.handleClick}>
           Fetch Satellite Data
