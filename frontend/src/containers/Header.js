@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import '../styles/Header.css';
 
 class Header extends Component {
-
   render() {
-
     return (
       <div>
         <AppBar position="static">
           <Toolbar>
-          <Typography className="header-title " variant="title" color="inherit" >
+            <Typography
+              className="header-title "
+              variant="title"
+              color="inherit"
+            >
               Sat-Track
-          </Typography>
-          {/*
+            </Typography>
+            {/*
           <div className="header-links">
             <Link className="header-link-item" to='/'>
               <Typography variant="button"  color="inherit">

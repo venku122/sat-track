@@ -10,11 +10,11 @@ class Main extends Component {
   render() {
     return (
       <Switch>
-        <Route exact path='/' component={SatellitePredictions}/>
+        <Route exact path="/" component={SatellitePredictions} />
         {/*
         <Route path='/satellites' component={Satellites}/>
         <Route path='/uploadData' component={UploadData}/>
-       */ }
+       */}
       </Switch>
     );
   }

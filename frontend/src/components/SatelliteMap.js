@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import Immutable from 'immutable';
 import mapImg from './Equirectangular_projection_SW.jpg';
 import '../styles/satelliteMap.css';
 
 class SatelliteMap extends Component {
-
   constructor(props) {
     super(props);
 
@@ -18,32 +18,32 @@ class SatelliteMap extends Component {
 
   componentDidMount() {
     const canvas = this.refs.canvas;
-    const ctx = canvas.getContext("2d");
-    const mapBackground = new Image();   // Create new img element
+    const ctx = canvas.getContext('2d');
+    const mapBackground = new Image(); // Create new img element
     mapBackground.src = mapImg;
     this.setState({
       canvas,
       ctx,
-      mapBackground
+      mapBackground,
     });
     this.handleResize();
     window.addEventListener('resize', this.handleResize);
     // this.renderPredictions();
   }
-  
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize)
-  }
 
-  componentDidUpdate(nextProps, nextState) {
-    //this.renderPredictions();
+  componentDidUpdate() {
+    // this.renderPredictions();
     console.log('redrawing map');
     this.renderPredictionsLongCurve();
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
   normalize(dimension, value) {
-    const scalingFactor = (dimension/2) / 100; 
-    return (value * scalingFactor) + dimension/2;
+    const scalingFactor = dimension / 2 / 100;
+    return value * scalingFactor + dimension / 2;
   }
 
   normalizeLat(lat) {
@@ -58,7 +58,7 @@ class SatelliteMap extends Component {
     return this.normalize(width, long);
   }
 
-  willCrossEdge(xPos, yPos, priorXPos, priorYPos) {
+  willCrossEdge(xPos, yPos /* priorXPos, priorYPos */) {
     const { canvas } = this.state;
     const { width, height } = canvas;
     /*
@@ -68,9 +68,17 @@ class SatelliteMap extends Component {
     if ((priorYPos + yLeap) > height) return true;
     return false;
     */
-   if (xPos > width || xPos < 0) return true;
-   if (yPos > height || yPos < 0) return true;
+    if (xPos > width || xPos < 0) return true;
+    if (yPos > height || yPos < 0) return true;
+    return false;
+  }
 
+  handleResize() {
+    const canvas = this.refs.canvas;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    this.renderPredictionsLongCurve();
   }
 
   renderPredictions() {
@@ -87,11 +95,16 @@ class SatelliteMap extends Component {
       ctx.fillRect(xPos,yPos,2,2);
     });
     */
-   ctx.drawImage(mapBackground, 0, 0, width, height);
-   ctx.beginPath();
-   let xPos, yPos, priorXPos, priorYPos;
-   for (let i = 0; i < predictions.size; i++) {
-     const prediction = predictions.get(i);
+    ctx.drawImage(mapBackground, 0, 0, width, height);
+    ctx.beginPath();
+    let xPos;
+    let yPos;
+    /*
+    let priorXPos;
+    let priorYPos;
+    */
+    for (let i = 0; i < predictions.size; i++) {
+      const prediction = predictions.get(i);
       xPos = this.normalizeLong(prediction.get('long'));
       yPos = this.normalizeLat(prediction.get('lat'));
       /*
@@ -109,11 +122,13 @@ class SatelliteMap extends Component {
         ctx.lineTo(xPos,yPos,2,2);
       }
       */
-     ctx.lineTo(xPos, yPos, 2, 2);
+      ctx.lineTo(xPos, yPos, 2, 2);
+      /*
       priorYPos = yPos;
       priorXPos = xPos;
+      */
     }
-  ctx.stroke();
+    ctx.stroke();
   }
 
   renderPredictionsLongCurve() {
@@ -132,12 +147,11 @@ class SatelliteMap extends Component {
       ctx.drawImage(mapBackground, 0, 0, width, height);
       ctx.beginPath();
       const startingPrediction = predictions.get(0);
-      let xPos = this.normalizeLong(startingPrediction.get('long'));
-      let yPos = this.normalizeLat(startingPrediction.get('lat'));
+      const xPos = this.normalizeLong(startingPrediction.get('long'));
+      const yPos = this.normalizeLat(startingPrediction.get('lat'));
       ctx.moveTo(xPos, yPos);
       let i = 0;
-      for (i = 1; i < predictions.size - 2; i ++)
-      {
+      for (i = 1; i < predictions.size - 2; i++) {
         const prediction1 = predictions.get(i);
         const prediction2 = predictions.get(i + 1);
         const x1 = this.normalizeLong(prediction1.get('long'));
@@ -148,25 +162,19 @@ class SatelliteMap extends Component {
         const yc = (y1 + y2) / 2;
         ctx.quadraticCurveTo(x1, y1, xc, yc);
       }
-  
+
       const finalPrediction1 = predictions.get(i);
       const finalPrediction2 = predictions.get(i + 1);
-  
+
       // curve through the last two points
-      ctx.quadraticCurveTo(this.normalizeLong(finalPrediction1.get('long')),
-      this.normalizeLat(finalPrediction1.get('lat')),
-      this.normalizeLong(finalPrediction2.get('long')),
-      this.normalizeLat(finalPrediction2.get('lat')));
+      ctx.quadraticCurveTo(
+        this.normalizeLong(finalPrediction1.get('long')),
+        this.normalizeLat(finalPrediction1.get('lat')),
+        this.normalizeLong(finalPrediction2.get('long')),
+        this.normalizeLat(finalPrediction2.get('lat'))
+      );
       ctx.stroke();
     }
-  }
-
-  handleResize() {
-    const canvas = this.refs.canvas;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    this.renderPredictionsLongCurve();
   }
 
   render() {
@@ -177,7 +185,7 @@ class SatelliteMap extends Component {
           ref="canvas"
           className="satellite-map-canvas"
           onResize={this.handleResize}
-        />
+        />{' '}
       </div>
     );
   }
@@ -192,5 +200,9 @@ function resizeCanvas(e) {
   myCanvas.height = document.documentElement.clientHeight;
 }
 */
+
+SatelliteMap.propTypes = {
+  predictions: PropTypes.instanceOf(Immutable.List).isRequired,
+};
 
 export default SatelliteMap;

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Immutable from 'immutable';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -7,10 +8,7 @@ import SatelliteMap from '../components/SatelliteMap';
 import SatelliteList from '../components/SatelliteList';
 import AltitudeChart from '../components/AltitudeChart';
 import withRoot from '../withRoot';
-import {
-  downloadSatelliteData,
-  getSatelliteIDs
-} from '../actions/actions';
+import { downloadSatelliteData, getSatelliteIDs } from '../actions/actions';
 
 const styles = theme => ({
   root: {
@@ -20,19 +18,17 @@ const styles = theme => ({
   content: {
     display: 'flex',
     width: '100%',
-  }
+  },
 });
 
 class SatellitePredictions extends React.Component {
-  componentDidMount() {
+  componentDidMount() {}
 
-  }
-
-  handleClick = () => {
-    const { fetchSatelliteData, fetchSatellites } = this.props;
-    //fetchSatelliteData();
+  handleClick() {
+    const { /* fetchSatelliteData, */ fetchSatellites } = this.props;
+    // fetchSatelliteData();
     fetchSatellites();
-  };
+  }
 
   render() {
     const { classes, simData, satellites } = this.props;
@@ -42,9 +38,13 @@ class SatellitePredictions extends React.Component {
         <div className={classes.content}>
           <SatelliteList satellites={satellites} />
           <SatelliteMap predictions={simData} />
-          <AltitudeChart predictions={simData}/>
+          <AltitudeChart predictions={simData} />
         </div>
-        <Button variant="contained" color="secondary" onClick={this.handleClick}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={this.handleClick}
+        >
           Fetch Satellite Data
         </Button>
       </div>
@@ -55,28 +55,32 @@ class SatellitePredictions extends React.Component {
 SatellitePredictions.propTypes = {
   classes: PropTypes.object.isRequired,
   fetchSatelliteData: PropTypes.func.isRequired,
-  simData: PropTypes.object,
+  fetchSatellites: PropTypes.func.isRequired,
+  simData: PropTypes.instanceOf(Immutable.List).isRequired,
   currentSimID: PropTypes.string,
   satellites: PropTypes.object,
 };
 
-const mapStateToProps = (state, ownProps) => {
-  return {
-    simData: state.appState.get('simData'),
-    currentSimID: state.appState.get('currentSimSatellite'),
-    satellites: state.appState.get('satellites'),
-  };
-};
+const mapStateToProps = state => ({
+  simData: state.appState.get('simData'),
+  currentSimID: state.appState.get('currentSimSatellite'),
+  satellites: state.appState.get('satellites'),
+});
 
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-    fetchSatelliteData: () => {
-      dispatch(downloadSatelliteData())
-    },
-    fetchSatellites: () => {
-      dispatch(getSatelliteIDs());
-    },
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  fetchSatelliteData: () => {
+    dispatch(downloadSatelliteData());
+  },
+  fetchSatellites: () => {
+    dispatch(getSatelliteIDs());
+  },
+});
 
-export default withRoot(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(SatellitePredictions)));
+export default withRoot(
+  withStyles(styles)(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(SatellitePredictions)
+  )
+);
