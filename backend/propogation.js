@@ -1,6 +1,7 @@
 const Stream = require('stream')
 const satelliteParser = require('satellite.js');
 const { getTLEList } = require('./tle');
+const { PropogationStream } = require('./propogationStream');
 
 const propogatePerPeriod = async (satelliteID, periodsToSim) => {
   const tleList = await getTLEList();  
@@ -129,6 +130,7 @@ rs._read = function () {
 rs.pipe(process.stdout);
 */
 
+/*
 const propogationSimStream = async (satRecord, startOfPropagation, endOfPropogation, step) => {
   // const predictions = [];
   const readable = new Stream.Readable({objectMode: false});
@@ -162,7 +164,7 @@ const propogationSimStream = async (satRecord, startOfPropagation, endOfPropogat
         // appendToFile('satelliteIterativePlot.csv', `${satellite.OBJECT_NAME},${futureTime},${latitudeStr},${longitudeStr}\n`);
         // predictions.push({timestamp: futureTime, lat: latitudeStr, long: longitudeStr, height});
         if(!readable.push(JSON.stringify({timestamp: futureTime, lat: latitudeStr, long: longitudeStr, height}))) {
-          
+
         }
       }
       numIterations++;
@@ -170,6 +172,11 @@ const propogationSimStream = async (satRecord, startOfPropagation, endOfPropogat
     readable.push(null);
   }
   return readable;
+}
+*/
+
+const propogationSimStream = async (satRecord, startOfPropagation, endOfPropogation, step) => {
+  return new PropogationStream(satRecord, startOfPropagation, endOfPropogation, step, {objectMode: false});
 }
 
 
