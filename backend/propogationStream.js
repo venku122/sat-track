@@ -25,7 +25,7 @@ const { Readable } = require('stream');
 const satelliteParser = require('satellite.js');
 
 class PropogationStream extends Readable {
-  constructor(satRecord, startOfPropagation, endOfPropogation, step, opt) {
+  constructor(satRecord, startOfPropagation, endOfPropogation, step, id, opt) {
     super(opt);
     this.satRecord = satRecord;
     this.startOfPropogation = startOfPropagation;
@@ -34,13 +34,14 @@ class PropogationStream extends Readable {
     this.currentTime = startOfPropagation;
     this.runSim = true;
     this.numIterations = 0;
+    this.id = id;
   }
 
   _read() {
     this.runSim = true;
     // for (let i = startOfPropagation; i < endOfPropogation; i += step) {
     while (this.runSim) {
-      if (this.numIterations % 10000 === 0) console.log(`starting iteration: ${this.numIterations}`);
+      if (this.numIterations % 100000 === 0) console.log(`starting iteration: ${this.numIterations}`);
       const futureTime = new Date(this.currentTime);
       const positionAndVelocity = satelliteParser.propagate(this.satRecord, futureTime);
       // get position and velocity components
@@ -64,11 +65,12 @@ class PropogationStream extends Readable {
         // console.log(`time in the future: ${futureTime}, lat: ${latitudeStr}, long: ${longitudeStr}`)
         // appendToFile('satelliteIterativePlot.csv', `${satellite.OBJECT_NAME},${futureTime},${latitudeStr},${longitudeStr}\n`);
         // predictions.push({timestamp: futureTime, lat: latitudeStr, long: longitudeStr, height});
-        if (!this.push(JSON.stringify({timestamp: futureTime, lat: latitudeStr, long: longitudeStr, height}))) {
+        if (!this.push(JSON.stringify({id: this.id, timestamp: futureTime, lat: latitudeStr, long: longitudeStr, height}))) {
           this.runSim = false;
         } else {
           this.runSim = true;
         }
+
       }
       this.numIterations = this.numIterations + 1;
       this.currentTime = this.currentTime + this.stepSize;

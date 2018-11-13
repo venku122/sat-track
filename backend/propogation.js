@@ -2,6 +2,7 @@ const Stream = require('stream')
 const satelliteParser = require('satellite.js');
 const { getTLEList } = require('./tle');
 const { PropogationStream } = require('./propogationStream');
+const { MergeStream } = require('./mergeStream');
 
 const propogatePerPeriod = async (satelliteID, periodsToSim) => {
   const tleList = await getTLEList();  
@@ -24,7 +25,7 @@ const propogatePerPeriod = async (satelliteID, periodsToSim) => {
   return predictions;
 }
 
-const propogatePerPeriodStream = async (satelliteID, periodsToSim) => {
+const propogatePerPeriodStream = async (satelliteID, periodsToSim, id = -1) => {
   const tleList = await getTLEList();  
   const satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
   if (!satellite) {
@@ -40,9 +41,68 @@ const propogatePerPeriodStream = async (satelliteID, periodsToSim) => {
   const end = start + ((periodMinutes * 60 * 1000) * periodsToSim);
   const step = (end - start) / (1000 * periodsToSim); // create 1000 iterations for each period; keeps data size down, roughly
   if (satRecord) {
-    predictionsStream = propogationSimStream(satRecord, start, end, step);
+    predictionsStream = propogationSimStream(satRecord, start, end, step, id);
   }
   return predictionsStream;
+}
+
+const propogatePerPeriodStreamObjMode = async (satelliteID, periodsToSim, id = -1) => {
+  const tleList = await getTLEList();  
+  const satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
+  if (!satellite) {
+    return ({
+      error: "No satellite with that ID was found in the catalog",
+      satelliteID,
+    });
+  }
+  const satRecord = satelliteParser.twoline2satrec(satellite.TLE_LINE1, satellite.TLE_LINE2);
+  const start = Date.now();
+  const periodMinutes = Number.parseInt(satellite.PERIOD, 10);
+  const end = start + ((periodMinutes * 60 * 1000) * periodsToSim);
+  const step = (end - start) / (1000 * periodsToSim); // create 1000 iterations for each period; keeps data size down, roughly
+  if (satRecord) {
+    predictionsStream = propogationSimStream(satRecord, start, end, step, id, { objectMode: true });
+  }
+  return predictionsStream;
+}
+
+const distributedSimStream = async (satelliteID, periodsToSim) => {
+
+  /*
+  const propogationResults1 = await propogateStream
+  const propogationResults1 = await propogateStream
+  const propogationResults1 = await propogateStream
+  const testDuplexStream = new MergeStream([
+    propogationResults1,
+    propogationResults2,
+    propogationResults3
+  ]);
+  // res.send(propogationResults);
+  // propogationResults.pipe(res);
+  */
+ const tleList = await getTLEList();  
+ const satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
+ if (!satellite) {
+   return ({
+     error: "No satellite with that ID was found in the catalog",
+     satelliteID,
+   });
+ }
+ const satRecord = satelliteParser.twoline2satrec(satellite.TLE_LINE1, satellite.TLE_LINE2);
+ const simSteps = periodsToSim * 1000;
+ const numWorkUnits = simSteps / 50;
+ const streams = [];
+ const firstStart = Date.now();
+ const periodMinutes = Number.parseInt(satellite.PERIOD, 10);
+ const finalEnd = firstStart + ((periodMinutes * 60 * 1000) * periodsToSim);
+ const step = (finalEnd - firstStart) / (1000 * periodsToSim);
+ for (let i = 0; i < 4; i++) {
+  const duration = (finalEnd - firstStart) / 4;
+  const offset = duration * i;
+  const stream = await propogateStream(satRecord, firstStart + offset, firstStart + offset + duration, step, `stream: ${i}`);
+  streams.push(stream);
+ }
+ return await new MergeStream(streams);
 }
 
 const propogate = async (satelliteID, start, end, step) => {
@@ -61,6 +121,14 @@ const propogate = async (satelliteID, start, end, step) => {
     predictions = await propogationSim(satRecord, start, end, step)
   }
   return predictions;
+}
+
+const propogateStream = async (satRecord, start, end, step, id) => {
+  let predictionStream;
+  if (satRecord) {
+    predictionStream = await propogationSimStream(satRecord, start, end, step, id, { objectMode: true });
+  }
+  return predictionStream;
 }
 
 const propogationSim = async (satRecord, startOfPropagation, endOfPropogation, step) => {
@@ -175,14 +243,17 @@ const propogationSimStream = async (satRecord, startOfPropagation, endOfPropogat
 }
 */
 
-const propogationSimStream = async (satRecord, startOfPropagation, endOfPropogation, step) => {
-  return new PropogationStream(satRecord, startOfPropagation, endOfPropogation, step, {objectMode: false});
+const propogationSimStream = async (satRecord, startOfPropagation, endOfPropogation, step, id, opts = { objectMode: false }) => {
+  return new PropogationStream(satRecord, startOfPropagation, endOfPropogation, step, id, opts);
 }
 
 
 
 module.exports = {
   propogate,
+  propogateStream,
   propogatePerPeriod,
-  propogatePerPeriodStream
+  propogatePerPeriodStream,
+  propogatePerPeriodStreamObjMode,
+  distributedSimStream
 };
