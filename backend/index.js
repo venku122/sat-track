@@ -1,4 +1,5 @@
 const fs = require('fs');
+require('dotenv').config(); // load username and password for space-track into env variables
 const express = require('express');
 const {
   propogate,
