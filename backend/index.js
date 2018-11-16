@@ -100,7 +100,8 @@ app.get('/satelliteInfo', async (req, res) => {
   }
 
   const tleList = await getTLEList();
-  const satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
+  let satellite = tleList.find(tle => tle.NORAD_CAT_ID === Number.parseInt(satelliteID, 10));
+  if (!satellite) satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID); // check if fresh data, with string ID :(
   if (!satellite) {
     return res.status(400).send({
       error: "No satellite with that ID was found in the catalog",
