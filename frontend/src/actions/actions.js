@@ -30,12 +30,14 @@ export const getSatelliteInfo = (satelliteID) => {
       type: ActionTypes.GET_SATELLITE_INFO_ATTEMPTED,
       satelliteID
     });
-    axios.get(`${urlBase}/satelliteID`, { params: { satelliteID }})
+    axios.get(`${urlBase}/satelliteInfo`, { params: { satelliteID }})
     .then((res) => {
+      const satelliteInfo = {};
+      satelliteInfo[satelliteID] = res.data;
       dispatch({
         type: ActionTypes.GET_SATELLITE_INFO_SUCCESSFUL,
-        satelliteInfo: res.data,
-        satelliteID,
+        satelliteInfo: satelliteInfo,
+        satelliteID: satelliteID.toString(),
       });
     })
     .catch((err) => {

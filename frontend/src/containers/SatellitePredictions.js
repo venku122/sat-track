@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import SatelliteMap from '../components/SatelliteMap';
 import SatelliteList from '../components/SatelliteList';
 import AltitudeChart from '../components/AltitudeChart';
+import SatelliteInfoBar from '../components/SatelliteInfoBar';
 import withRoot from '../withRoot';
 import { downloadSatelliteData, getSatelliteIDs } from '../actions/actions';
 
@@ -22,6 +23,13 @@ const styles = theme => ({
 });
 
 class SatellitePredictions extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.handleClick = this.handleClick.bind(this);
+  }
+
   componentDidMount() {}
 
   handleClick() {
@@ -31,11 +39,14 @@ class SatellitePredictions extends React.Component {
   }
 
   render() {
-    const { classes, simData, satellites } = this.props;
+    const { classes, simData, satellites, currentSimID } = this.props;
+
+    const satelliteInfo = satellites.get(currentSimID);
 
     return (
       <div className={classes.root}>
         <div className={classes.content}>
+          <SatelliteInfoBar satelliteInfo={satelliteInfo} />
           <SatelliteList satellites={satellites} />
           <SatelliteMap predictions={simData} />
           <AltitudeChart predictions={simData} />

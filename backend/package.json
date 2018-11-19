@@ -10,6 +10,7 @@
   "author": "T.J. Tarazevits",
   "license": "ISC",
   "dependencies": {
+    "compression": "^1.7.3",
     "dotenv": "^6.1.0",
     "express": "^4.16.4",
     "kerberos": "^1.1.2",

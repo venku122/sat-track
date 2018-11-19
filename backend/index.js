@@ -1,6 +1,7 @@
 const fs = require('fs');
 require('dotenv').config(); // load username and password for space-track into env variables
 const express = require('express');
+const compression = require('compression');
 const {
   propogate,
   propogatePerPeriod,
@@ -12,6 +13,8 @@ const { getTLEList, initializeData } = require('./tle');
 const { MergeStream } = require('./mergeStream');
 const app = express();
 const port = process.env.PORt ? process.env.PORT : 4000;
+
+app.use(compression()); // use zlib compression for large simulation bodies.
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -109,7 +112,7 @@ app.get('/satelliteInfo', async (req, res) => {
   }
 
   const satelliteInfo = {
-      satelliteID: Number.parseInt(satellite.NORAD_CAT_ID, 10),
+      id: satellite.NORAD_CAT_ID,
       name: satellite.OBJECT_NAME,
       type: satellite.OBJECT_TYPE,
       classification: satellite.CLASSIFICATION_TYPE,
