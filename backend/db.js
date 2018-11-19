@@ -15,7 +15,7 @@ const tleSchema = new mongoose.Schema({
   ORDINAL: Number,
   COMMENT: String,
   ORIGINATOR: String,
-  NORAD_CAT_ID: Number,
+  NORAD_CAT_ID: String,
   OBJECT_NAME: String,
   OBJECT_TYPE: String,
   CLASSIFICATION_TYPE: String,

@@ -6,6 +6,23 @@ const { TLE } = require('./db');
 
 let tleCache = null;
 
+// fetches the cache at boot;
+const initializeData = async () => {
+  if (!tleCache) {
+    const storedCount = await TLE.countDocuments();
+    if (storedCount === 0) {
+      const freshTLEData = await getFreshTLEData();
+      tleCache = freshTLEData;
+      console.log('using fresh data');
+      return freshTLEData;
+    }
+    tleCache = await TLE.find();
+    console.log('using mongo data');
+    return tleCache;
+  }
+  return tleCache;
+}
+
 const getFreshTLEData = async () => {
   let response = await request.post('https://www.space-track.org/ajaxauth/login',{
     form: {
@@ -38,17 +55,8 @@ const saveTLEDataToDB = (tleData) => {
 }
 
 const getTLEList = async () => {
-  if (!tleCache) {
-    const storedCount = await TLE.countDocuments();
-    if (storedCount === 0) {
-      const freshTLEData = await getFreshTLEData();
-      tleCache = freshTLEData;
-      console.log('using fresh data');
-      return freshTLEData;
-    }
-    tleCache = await TLE.find();
-    console.log('using mongo data');
-    return tleCache;
+  if (!tleCache) { // code checks if mongo is empty, pulls mongo, or pulls from API
+    return await initializeData();
   }
 
  if (tleCache) return tleCache; // use fresh data instead
@@ -61,4 +69,5 @@ const getTLEList = async () => {
 
 module.exports = {
   getTLEList,
+  initializeData,
 };

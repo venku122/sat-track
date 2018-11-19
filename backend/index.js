@@ -8,7 +8,7 @@ const {
   propogatePerPeriodStreamObjMode,
   distributedSimStream
 } = require('./propogation');
-const { getTLEList } = require('./tle');
+const { getTLEList, initializeData } = require('./tle');
 const { MergeStream } = require('./mergeStream');
 const app = express();
 const port = process.env.PORt ? process.env.PORT : 4000;
@@ -100,8 +100,7 @@ app.get('/satelliteInfo', async (req, res) => {
   }
 
   const tleList = await getTLEList();
-  let satellite = tleList.find(tle => tle.NORAD_CAT_ID === Number.parseInt(satelliteID, 10));
-  if (!satellite) satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID); // check if fresh data, with string ID :(
+  let  satellite = tleList.find(tle => tle.NORAD_CAT_ID === satelliteID);
   if (!satellite) {
     return res.status(400).send({
       error: "No satellite with that ID was found in the catalog",
@@ -133,5 +132,7 @@ app.get('/satelliteIDs', async (req, res) => {
   });
   return res.send(satelliteMap);
 });
+
+initializeData();
 
 app.listen(port, () => console.log(`Sat-Track Server is listening on port ${port}`));
